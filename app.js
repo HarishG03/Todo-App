@@ -22,6 +22,17 @@ const initializeServer = async () => {
   }
 }
 initializeServer()
+let dbObj = dbObject => {
+  return {
+    id: dbObject.id,
+    todo: dbObject.todo,
+    priority: dbObject.priority,
+    status: dbObject.status,
+    category: dbObject.category,
+    dueDate: dbObject.due_date,
+  }
+}
+
 
 app.get('/todos/', async (request, response) => {
   const {
@@ -31,33 +42,41 @@ app.get('/todos/', async (request, response) => {
     search_q = '',
     dueDate = '',
   } = request.query
+  let res = []
   const query1 = `
   SELECT * FROM todo 
   WHERE todo LIKE '%${search_q}%' AND
   status LIKE '%${status}%'AND
-  priority LIKE '%${priority}%'AND
+  priority LIKE '%${priority}%' AND
   category LIKE '%${category}%';`
-  const result1 = await db.all(query1)
-  response.send(result1)
+  const dbObject = await db.all(query1)
+  dbObject.forEach(obj => {
+    res.push(dbObj(obj))
+  })
+  response.send(res)
 })
 
-app.get('/todos/:todoId/', async (request, response) => {
+app.get('/todos/:todoId/',  async (request, response) => {
   const {todoId} = request.params
   const query2 = `
   SELECT * FROM todo 
   WHERE id = ${todoId};
   `
-  const result2 = await db.all(query2)
-  response.send(result2)
+  const result2 = await db.get(query2)
+  response.send(dbObj(result2))
 })
 
 app.get('/agenda/', async (request, response) => {
   const {date} = request.query
+  let res = []
   const query3 = `
   SELECT * FROM todo 
   WHERE due_date  LIKE '${date}';`
   const result3 = await db.all(query3)
-  response.send(result3)
+  result3.forEach(obj => {
+    res.push(dbObj(obj))
+  })
+  response.send(res)
 })
 
 app.post('/todos/', async (request, response) => {
