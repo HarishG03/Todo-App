@@ -82,7 +82,7 @@ app.get('/agenda/', async (request, response) => {
 app.post('/todos/', async (request, response) => {
   const {id, todo, priority, status, category, dueDate} = request.body
   const query4 = `
-  INSERT INTO todo(id,todo,category,priority,status,due_date)
+  INSERT INTO todo(id,todo,priority,status,category,due_date)
   VALUES (${id},'${todo}','${priority}','${status}','${category}','${dueDate}');`
   await db.run(query4)
   response.send('Todo Successfully Added')
